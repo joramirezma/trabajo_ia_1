@@ -15,7 +15,7 @@ def graficar_funciones(carpeta="docs", mostrar=False):
     fig, ejes = plt.subplots(2, 2, figsize=(12, 8))
     for var, ax in zip(variables, ejes.flat):
         for nombre, termino in var.terms.items():
-            estilo = "--" if nombre.startswith(("muy", "ligeramente")) else "-"
+            estilo = "--" if nombre.startswith(("muy", "mas_o_menos")) else "-"
             ax.plot(var.universe, termino.mf, estilo, label=nombre)
         ax.set_title(var.label)
         ax.set_ylabel("pertenencia")

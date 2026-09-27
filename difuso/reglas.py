@@ -22,8 +22,8 @@ def crear_reglas(edad, afin, dist, comp):
         ctrl.Rule(edad["grande"] | dist["lejos"], comp["baja"]),
         # FR7 afinidad alta Y edad moderada -> media
         ctrl.Rule(afin["alta"] & edad["moderada"], comp["media"]),
-        # FR8 afinidad media Y ligeramente(distancia lejos) -> media
-        ctrl.Rule(afin["media"] & dist["ligeramente_lejos"], comp["media"]),
+        # FR8 afinidad media Y mas o menos(distancia lejos) -> media
+        ctrl.Rule(afin["media"] & dist["mas_o_menos_lejos"], comp["media"]),
         # FR9 afinidad alta Y distancia lejos -> media
         ctrl.Rule(afin["alta"] & dist["lejos"], comp["media"]),
         # FR10 NO(afinidad baja) Y distancia intermedia -> media

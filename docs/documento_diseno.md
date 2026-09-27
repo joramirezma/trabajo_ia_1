@@ -158,8 +158,12 @@ Cómo se calculan las entradas para un par (A, B):
 
 ### 4.2 Modificadores
 
+Se usan las fórmulas del catálogo de modificadores visto en clase:
+
 - **muy** (concentración): μ_muy(x) = μ(x)². Se aplica a `afinidad alta` → término `muy_alta`.
-- **ligeramente** (dilatación): μ_lig(x) = μ(x)^0.5. Se aplica a `distancia lejos` → término `ligeramente_lejos`.
+- **más o menos** (dilatación): μ_mom(x) = √μ(x) = μ(x)^0.5. Se aplica a `distancia lejos` → término `mas_o_menos_lejos`.
+
+La concentración hace el conjunto más restrictivo: una afinidad solo es "muy alta" si es claramente alta. La dilatación lo amplía: una distancia de 80 km, que apenas es "lejos" (μ = 0.5), es "más o menos lejos" con μ ≈ 0.71.
 
 Se implementan como términos nuevos de la variable (`afinidad_intereses["muy_alta"] = afinidad["alta"].mf ** 2`), porque skfuzzy no permite aplicar la potencia dentro de la regla.
 
@@ -180,7 +184,7 @@ Las líneas punteadas son los términos con modificador.
 | FR5 | distancia lejos Y NO(afinidad alta) → baja | AND, NOT |
 | FR6 | edad grande O distancia lejos → baja | OR |
 | FR7 | afinidad alta Y edad moderada → media | AND |
-| FR8 | afinidad media Y ligeramente(distancia lejos) → media | AND, modificador |
+| FR8 | afinidad media Y más o menos(distancia lejos) → media | AND, modificador |
 | FR9 | afinidad alta Y distancia lejos → media | AND |
 | FR10 | NO(afinidad baja) Y distancia intermedia → media | AND, NOT |
 | FR11 | afinidad media Y distancia cerca → media | AND |

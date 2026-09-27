@@ -11,8 +11,8 @@ def muy(mf):
     return np.power(mf, 2)
 
 
-def ligeramente(mf):
-    """Modificador 'ligeramente' (dilatacion): mu(x)^0.5."""
+def mas_o_menos(mf):
+    """Modificador 'mas o menos' (dilatacion): mu(x)^0.5."""
     return np.power(mf, 0.5)
 
 
@@ -43,7 +43,7 @@ def crear_variables():
     distancia_km["cerca"] = fuzz.gaussmf(u, 0, 10)
     distancia_km["intermedia"] = fuzz.trimf(u, [10, 40, 80])
     distancia_km["lejos"] = fuzz.trapmf(u, [60, 100, 150, 150])
-    distancia_km["ligeramente_lejos"] = ligeramente(distancia_km["lejos"].mf)
+    distancia_km["mas_o_menos_lejos"] = mas_o_menos(distancia_km["lejos"].mf)
 
     u = compatibilidad.universe
     compatibilidad["baja"] = fuzz.trimf(u, [0, 0, 45])
