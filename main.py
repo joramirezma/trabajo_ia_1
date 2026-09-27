@@ -61,7 +61,7 @@ def ejecutar(ruta_ttl=RUTA_TTL, pares_traza=(("Andres", "Sofia"), ("Mateo", "Sof
     motor.cargar(facts + afinidades)
     motor.run()
 
-    print("Primeros disparos del motor (a igual salience y specificity gana el hecho mas reciente):")
+    print("Primeros disparos del motor (a igual salience gana el hecho mas reciente):")
     for regla, x, y in motor.disparos[:8]:
         print(f"   {regla} {V.nombre_corto(x)}-{V.nombre_corto(y)}")
 

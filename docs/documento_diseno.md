@@ -224,6 +224,7 @@ El traductor genera **415 hechos iniciales** desde el grafo razonado: 78 `Indivi
 | R02 | 100 | A y B participaron en la misma cita con calificación ≤ 2 | descartar "mala cita previa" + Evaluado |
 | R03 | 100 | AfinidadDifusa + ambos `Individuo(tipo=Persona)` y `Individuo(tipo=foaf:Person)` (tipos inferidos) | Puntaje(a, b, 0) |
 | R18 | 100 | Relacion cuyo objeto no es del tipo del `range` (Esquema) | aviso de inconsistencia |
+| R10 | 60 | mismo `practicaDeporte` D, D es Deporte y (por inferencia) Interes | Coincidencia deporte |
 | R04 | 50 | mismo `tieneInteres` X (incluye inferidos), X es Interes y no es deporte ya contado | Coincidencia interes |
 | R05 | 50 | mismo `tieneValor` V y V es Valor | Coincidencia valor |
 | R06 | 50 | mismo `buscaObjetivo` O y O es ObjetivoRelacion | Coincidencia objetivo |
@@ -232,7 +233,6 @@ El traductor genera **415 hechos iniciales** desde el grafo razonado: 78 `Indivi
 | R07c | 50 | regiones distintas del mismo departamento | Coincidencia departamento |
 | R08 | 50 | `foaf:knows` a la misma persona (inferido desde `esAmigoDe`) | Coincidencia amigo_comun |
 | R09 | 50 | misma subclase T de Persona, leída de `Esquema(T subClassOf Persona)` y `Esquema(T tipo rdfs:Class)` | Coincidencia etapa |
-| R10 | 50 | mismo `practicaDeporte` D, D es Deporte y (por inferencia) Interes | Coincidencia deporte |
 | R11 | 50 | Coincidencia(contada=False) + Puntaje | suma +1 (deporte +2), marca contada=True |
 | R16a | 50 | Cita con calificación ≤ 2 en un lugar | LugarDescartado |
 | R12 | 10 | nivel alta, Puntaje ≥ 3, ambos verificados | proponer_cita + Evaluado |
@@ -248,24 +248,27 @@ Los resultados de la lógica difusa entran como precondición (`nivel`) en R12, 
 
 ### 5.4 Control de ejecución y resolución de conflictos
 
-Experta trae por defecto `DepthStrategy`, que ordena la agenda solo por salience y luego por recencia. Para tener los tres mecanismos se hizo `EstrategiaEmparejamiento` (en `experto/motor.py`). Ordena cada activación con la llave:
+Se usa la estrategia por defecto de Experta, `DepthStrategy` (en `experto/motor.py` no se redefine). Cada activación se ordena con la llave:
 
 ```
-(salience, especificidad, recencia)
+(salience, [factid_1, factid_2, ..., factid_n])
 ```
 
-La activación con la mayor llave se ejecuta primero.
+Los `factid` son los identificadores de los hechos que activaron la regla, ordenados de mayor a menor. La activación con la mayor llave se ejecuta primero. Python compara la tupla elemento a elemento, y de esa comparación salen los tres mecanismos en este orden: salience, recencia y specificity.
 
-**1. Salience (prioridad).** Hay 5 niveles: ALTA = 100, MEDIA = 50, BAJA = 10, DEFECTO = −10 e INFORME = −20. Es el primer criterio.
-- Los descartes (R01, R02) se ejecutan antes que cualquier decisión. En el par Sofía–Mateo se dispara R01 (objetivos incompatibles), que declara `Evaluado`. Aunque el difuso dio nivel baja, **R15 ya no se dispara**. La traza que se imprime es `R03 R01`; las dos tienen salience 100 y R03 va primero por ser más específica.
+**1. Salience (prioridad).** Hay 6 niveles: ALTA = 100, DEPORTE = 60, MEDIA = 50, BAJA = 10, DEFECTO = −10 e INFORME = −20. Es el primer criterio; si las salience son distintas no se miran los `factid`.
+- Los descartes (R01, R02) se ejecutan antes que cualquier decisión. En el par Sofía–Mateo se dispara R01 (objetivos incompatibles), que declara `Evaluado`. Aunque el difuso dio nivel baja, **R15 ya no se dispara**. La traza que se imprime es `R03 R01`.
 - Todas las reglas de nivel 50 (coincidencias y suma) se agotan antes de que se evalúen las de nivel 10. Así R12 ve el puntaje completo.
+- **R10 (60) antes que R04 (50):** Running es a la vez `practicaDeporte` y, por inferencia (`subPropertyOf`), `tieneInteres`, así que R10 y R04 se activan con él. R10 va en un nivel propio para ejecutarse siempre primero: declara la coincidencia de tipo deporte y R04 tiene `NOT(Coincidencia(tipo="deporte", detalle=X))`, así que Running no se cuenta dos veces. Si R10 estuviera en 50, el orden lo decidiría la recencia, y como el traductor declara `tieneInteres` después de `practicaDeporte`, R04 ganaría: en 14 pares el deporte se sumaría también como interés (+1 de más en el puntaje).
 
-**2. Specificity (especificidad).** A igual salience gana la regla que empareja más hechos, es decir, la más específica.
-- **R12 vs R13:** un par con nivel alta, puntaje ≥ 3 y ambos verificados activa las dos. R12 empareja 4 hechos (AfinidadDifusa, Puntaje y dos Propiedad de verificación) y R13 solo 2. Gana R12, que declara `Evaluado` y bloquea a R13. En Sofía–Andrés la traza termina en `R12 R16` y R13 no aparece.
-- **R10 vs R04:** Running es a la vez `practicaDeporte` y, por inferencia, `tieneInteres`. R10 empareja 5 hechos (incluye `Individuo(Running, Deporte)` e `Individuo(Running, Interes)`) y R04 solo 4, así que R10 va primero. Declara la coincidencia de tipo deporte y R04 tiene `NOT(Coincidencia(tipo="deporte", detalle=X))`, así que Running no se cuenta dos veces. En la traza de Sofía–Andrés, R10 aparece antes de las dos R04 (Cine y Lectura).
-- **R14 vs R13:** con nivel alta y un perfil sin verificar, R14 (3 hechos) le gana a R13 (2 hechos).
+**2. Recencia.** A igual salience se comparan las listas de `factid`: primero el mayor de cada una; si son iguales, el segundo, y así sucesivamente. Gana la activación con el hecho más reciente.
+- En Sofía–Mateo, R03 y R01 tienen salience 100 y comparten el mismo `AfinidadDifusa` (486). El segundo elemento decide: R03 `[486, 297, …]` contra R01 `[486, 285, …]`, así que R03 va primero. Sus hechos `Individuo` de Sofía se declararon después que las relaciones que usa R01.
+- Los `AfinidadDifusa` se declaran en orden alfabético del par, así que los primeros disparos del motor son de los últimos pares (`R03 Sofia-Tomas`, `R01 Sofia-Tomas`, `R03 Samuel-Tomas`, …). En la prueba con Valentina, sus pares son los últimos declarados y por eso **son los primeros en procesarse** (`R03 Tomas-Valentina`, `R01 Tomas-Valentina`, `R03 Sofia-Valentina`, …).
+- Cada coincidencia nueva es el hecho más reciente, así que R11 la suma apenas se crea. En Sofía–Andrés la traza alterna `R10 R11 R08 R11 R07 R11 …`.
 
-**3. Recencia.** A igual salience y especificidad, gana la activación cuyos hechos se declararon más recientemente (id de hecho mayor). Los `AfinidadDifusa` se declaran en orden alfabético del par, así que los primeros disparos del motor son de los últimos pares (`R03 Sofia-Tomas`, `R03 Samuel-Tomas`, `R03 Samuel-Sofia`, …). En la prueba con Valentina, sus pares son los últimos declarados y por eso **son los primeros en procesarse** (`R03 Tomas-Valentina`, `R03 Sofia-Valentina`, …).
+**3. Specificity (especificidad).** Si todos los `factid` comparados son iguales y una lista se termina antes, gana la más larga, es decir, la regla que empareja más hechos.
+- **R12 vs R13 (Sofía–Andrés):** R12 empareja 4 hechos (AfinidadDifusa, Puntaje y las dos Propiedad de verificación) y R13 solo 2 (AfinidadDifusa y Puntaje). Las llaves reales son R12 `(10, [1053, 426, 288, 8])` y R13 `(10, [1053, 426])`: coinciden hasta que se acaba la de R13, así que gana R12, que declara `Evaluado` y bloquea a R13. La traza termina en `R12 R16` y R13 no aparece.
+- **R14 vs R13 (Andrés–Camila):** R14 `(10, [1134, 416, 34])` le gana a R13 `(10, [1134, 416])`. Se pide verificación en lugar de sugerir conversar.
 
 **Mecanismos anti-bucle.**
 - **Marca `contada` en R11:** R11 modifica `Puntaje`, que también está en su condición. Cada `modify` crea un hecho nuevo, y sin control la regla se volvería a activar con la misma coincidencia indefinidamente. Por eso primero se hace `modify(coincidencia, contada=True)`. Como la condición pide `contada=False`, esa coincidencia ya no vuelve a activar la regla.
@@ -333,7 +336,7 @@ Con los 13 perfiles (78 pares): 57 descartar, 18 sugerir_conversar, 1 pedir_veri
 
 | Par | Difuso | Reglas | Resultado |
 |---|---|---|---|
-| Sofía–Andrés | 3 años · 75 % · 0 km → 81.4 alta | R03, R10, R07, R05, R04 ×2, R06, R08, R11 ×7, R12, R16 | proponer_cita en el Parque Explora (Parque Lleras nunca se sugiere por la cita 1 mal calificada) |
+| Sofía–Andrés | 3 años · 75 % · 0 km → 81.4 alta | R03, R10, R08, R07, R05, R04 ×2, R06 (cada una seguida de R11, 7 en total), R12, R16 | proponer_cita en el Parque Explora (Parque Lleras nunca se sugiere por la cita 1 mal calificada) |
 | Sofía–Mateo | 18 años · 0 % · 130.7 km → 15.1 baja | R03, R01 | descartar "objetivos incompatibles"; R15 no dispara |
 | Andrés–Camila | 1 año · 75 % · 7.7 km → 81.4 alta | … R14 | pedir_verificacion (Camila no está verificada) |
 | Isabela–Tomás | – | R02 | descartar "mala cita previa" |

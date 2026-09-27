@@ -3,6 +3,7 @@ Reglas del sistema experto de emparejamiento.
 
 Niveles de prioridad (salience):
     ALTA = 100     descartes y creacion del puntaje
+    DEPORTE = 60   deporte en comun (antes que el interes generico de R04)
     MEDIA = 50     deteccion de coincidencias y suma del puntaje
     BAJA = 10      decision final
     DEFECTO = -10  caso por defecto
@@ -16,7 +17,7 @@ from experto.hechos import (Individuo, Relacion, Propiedad, Esquema, AfinidadDif
                             Coincidencia, Puntaje, Recomendacion, Evaluado, LugarDescartado)
 from experta import Rule, NOT, TEST, MATCH, P, AS
 
-ALTA, MEDIA, BAJA, DEFECTO, INFORME = 100, 50, 10, -10, -20
+ALTA, DEPORTE, MEDIA, BAJA, DEFECTO, INFORME = 100, 60, 50, 10, -10, -20
 
 
 class ReglasEmparejamiento:
@@ -171,9 +172,10 @@ class ReglasEmparejamiento:
           Relacion(sujeto=MATCH.b, predicado=V.MT_PRACTICA_DEPORTE, objeto=MATCH.d),
           Individuo(uri=MATCH.d, tipo=V.MT_DEPORTE),
           Individuo(uri=MATCH.d, tipo=V.MT_INTERES),
-          salience=MEDIA)
+          salience=DEPORTE)
     def r10_deporte_comun(self, a, b, d):
-        """Deporte en comun. Es mas especifica que R04 y le gana por specificity.
+        """Deporte en comun. Va en salience 60 para dispararse antes que R04: el
+        deporte tambien es tieneInteres (subPropertyOf) y R04 lo salta con su NOT.
         Deporte es Interes por inferencia (subClassOf), por eso tambien se pide ese tipo."""
         self._log("R10", a, b, V.nombre_corto(d))
         self.declare(Coincidencia(a=a, b=b, tipo="deporte", detalle=d))
@@ -280,7 +282,7 @@ class ReglasEmparejamiento:
           salience=INFORME)
     def r19_informe(self, a, b, acc, m, na, nb):
         """Guarda el resultado del par con los nombres (foaf:name)."""
-        self.informe.setdefault((a, b), {"nombres": (na, nb)})
+        self.informe.setdefault((a, b), {})["nombres"] = (na, nb)
         self.informe[(a, b)]["accion"] = acc
         self.informe[(a, b)]["motivo"] = m
 

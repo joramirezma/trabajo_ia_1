@@ -18,13 +18,13 @@ Caso 1 - jerarquia de clases (subClassOf):
    ... total 24
 
 Caso 2 - pertenencia desde el dominio de una propiedad:
-   mt:Camila a mt:Persona   (por el dominio de mt:perfilVerificado)
-   mt:Camila a mt:Persona   (por el dominio de mt:edad)
-   mt:Camila a mt:Persona   (por el dominio de mt:buscaObjetivo)
-   mt:Camila a mt:Persona   (por el dominio de mt:practicaDeporte)
-   mt:Camila a mt:Persona   (por el dominio de mt:viveEn)
-   mt:Camila a mt:Persona   (por el dominio de mt:tieneInteres)
    mt:Camila a mt:Persona   (por el dominio de mt:tieneValor)
+   mt:Camila a mt:Persona   (por el dominio de mt:viveEn)
+   mt:Camila a mt:Persona   (por el dominio de mt:edad)
+   mt:Camila a mt:Persona   (por el dominio de mt:perfilVerificado)
+   mt:Camila a mt:Persona   (por el dominio de mt:buscaObjetivo)
+   mt:Camila a mt:Persona   (por el dominio de mt:tieneInteres)
+   mt:Camila a mt:Persona   (por el dominio de mt:practicaDeporte)
 
 Caso 3 - jerarquia de propiedades (subPropertyOf):
    mt:Andres mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
@@ -169,18 +169,18 @@ Sofia-Tomas              2     0.0     0.0    15.1  baja
 ======================================================================
 4. SISTEMA EXPERTO
 ======================================================================
-Primeros disparos del motor (a igual salience y specificity gana el hecho mas reciente):
+Primeros disparos del motor (a igual salience gana el hecho mas reciente):
    R03 Sofia-Tomas
+   R01 Sofia-Tomas
    R03 Samuel-Tomas
    R03 Samuel-Sofia
+   R01 Samuel-Sofia
    R03 Paula-Tomas
+   R01 Paula-Tomas
    R03 Paula-Sofia
-   R03 Paula-Samuel
-   R03 Mateo-Tomas
-   R03 Mateo-Sofia
 
 Orden de disparo para Andres-Sofia:
-   R03   R10   R07   R05   R04   R04   R06   R08   R11   R11   R11   R11   R11   R11   R11   R12   R16
+   R03   R10   R11   R08   R11   R07   R11   R05   R11   R04   R11   R04   R11   R06   R11   R12   R16
 
 Orden de disparo para Mateo-Sofia:
    R03   R01
