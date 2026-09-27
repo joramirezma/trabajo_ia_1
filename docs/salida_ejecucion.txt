@@ -1,0 +1,268 @@
+
+======================================================================
+1. ONTOLOGIA Y RAZONAMIENTO RDFS
+======================================================================
+Triples antes del razonamiento:   327
+Triples despues del razonamiento: 641
+Triples nuevos sobre recursos mt: 166
+
+Caso 1 - jerarquia de clases (subClassOf):
+   mt:Andres a mt:Persona
+   mt:CafeCentral a mt:Lugar
+   mt:Carlos a foaf:Person
+   mt:Ciclismo a mt:Interes
+   mt:Daniel a mt:Persona
+   mt:Diana a foaf:Person
+   mt:Envigado a mt:Lugar
+   mt:Futbol a mt:Interes
+   ... total 24
+
+Caso 2 - pertenencia desde el dominio de una propiedad:
+   mt:Camila a mt:Persona   (por el dominio de mt:perfilVerificado)
+   mt:Camila a mt:Persona   (por el dominio de mt:edad)
+   mt:Camila a mt:Persona   (por el dominio de mt:buscaObjetivo)
+   mt:Camila a mt:Persona   (por el dominio de mt:practicaDeporte)
+   mt:Camila a mt:Persona   (por el dominio de mt:viveEn)
+   mt:Camila a mt:Persona   (por el dominio de mt:tieneInteres)
+   mt:Camila a mt:Persona   (por el dominio de mt:tieneValor)
+
+Caso 3 - jerarquia de propiedades (subPropertyOf):
+   mt:Andres mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
+   mt:Andres foaf:knows mt:Laura   (desde mt:esAmigoDe)
+   mt:Camila mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
+   mt:Carlos mt:tieneInteres mt:Ciclismo   (desde mt:practicaDeporte)
+   mt:Carlos foaf:knows mt:Julian   (desde mt:esAmigoDe)
+   mt:Daniel mt:tieneInteres mt:Futbol   (desde mt:practicaDeporte)
+   mt:Diana mt:tieneInteres mt:Ciclismo   (desde mt:practicaDeporte)
+   mt:Diana foaf:knows mt:Julian   (desde mt:esAmigoDe)
+   mt:Isabela mt:tieneInteres mt:Natacion   (desde mt:practicaDeporte)
+   mt:Julian mt:tieneInteres mt:Natacion   (desde mt:practicaDeporte)
+   mt:Julian foaf:knows mt:Carlos   (desde mt:esAmigoDe)
+   mt:Julian foaf:knows mt:Diana   (desde mt:esAmigoDe)
+   mt:Laura mt:tieneInteres mt:Natacion   (desde mt:practicaDeporte)
+   mt:Laura foaf:knows mt:Andres   (desde mt:esAmigoDe)
+   mt:Laura foaf:knows mt:Sofia   (desde mt:esAmigoDe)
+   mt:Mateo mt:tieneInteres mt:Futbol   (desde mt:practicaDeporte)
+   mt:Paula mt:tieneInteres mt:Ciclismo   (desde mt:practicaDeporte)
+   mt:Samuel mt:tieneInteres mt:Futbol   (desde mt:practicaDeporte)
+   mt:Samuel mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
+   mt:Sofia mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
+   mt:Sofia foaf:knows mt:Laura   (desde mt:esAmigoDe)
+   mt:Tomas mt:tieneInteres mt:Futbol   (desde mt:practicaDeporte)
+
+Otros hechos nuevos (muestra):
+   mt:Andres a foaf:Person
+   mt:Camila a foaf:Person
+   mt:Daniel a foaf:Person
+   mt:Isabela a foaf:Person
+   mt:Mateo a foaf:Person
+   mt:Paula a foaf:Person
+   mt:Samuel a foaf:Person
+   mt:Sofia a foaf:Person
+
+======================================================================
+2. TRADUCTOR ONTOLOGIA -> HECHOS
+======================================================================
+Hechos generados: 415
+   Individuo    78  (inferidos: 34)
+   Propiedad   109  (inferidos: 0)
+   Relacion    132  (inferidos: 22)
+   Esquema      96  (inferidos: 0)
+Personas encontradas y sus tipos:
+   Andres     Person (inferido), Persona (inferido), Profesional (asertado)
+   Camila     Person (inferido), Persona (inferido)
+   Carlos     Person (inferido), Persona (asertado)
+   Daniel     Person (inferido), Persona (inferido), Profesional (asertado)
+   Diana      Person (inferido), Persona (asertado)
+   Isabela    Estudiante (asertado), Person (inferido), Persona (inferido)
+   Julian     Person (inferido), Persona (asertado)
+   Laura      Person (inferido), Persona (asertado)
+   Mateo      Person (inferido), Persona (inferido), Profesional (asertado)
+   Paula      Person (inferido), Persona (inferido), Profesional (asertado)
+   Samuel     Estudiante (asertado), Person (inferido), Persona (inferido)
+   Sofia      Estudiante (asertado), Person (inferido), Persona (inferido)
+   Tomas      Estudiante (asertado), Person (inferido), Persona (inferido)
+
+======================================================================
+3. LOGICA DIFUSA POR PAR
+======================================================================
+par                   edad   afin%      km   score  nivel
+Andres-Camila            1    75.0     7.7    81.4  alta
+Andres-Carlos            5     0.0     7.7    15.1  baja
+Andres-Daniel            7     0.0   130.7    15.1  baja
+Andres-Diana             9    20.0    25.0    28.4  baja
+Andres-Isabela           4    16.7     0.0    19.8  baja
+Andres-Julian           12    40.0    25.0    45.1  media
+Andres-Laura             3    16.7     7.7    19.8  baja
+Andres-Mateo            15    20.0   130.7    22.4  baja
+Andres-Paula             2    40.0     0.0    50.0  media
+Andres-Samuel            2    40.0     7.7    50.0  media
+Andres-Sofia             3    75.0     0.0    81.4  alta
+Andres-Tomas             5    16.7     0.0    19.8  baja
+Camila-Carlos            4     0.0     0.0    15.1  baja
+Camila-Daniel            6     0.0   123.2    15.1  baja
+Camila-Diana             8     0.0    24.2    15.1  baja
+Camila-Isabela           5    20.0     7.7    23.4  baja
+Camila-Julian           11    20.0    24.2    28.4  baja
+Camila-Laura             2    20.0     0.0    23.4  baja
+Camila-Mateo            14    25.0   123.2    27.3  baja
+Camila-Paula             1    20.0     7.7    23.4  baja
+Camila-Samuel            3    50.0     0.0    50.0  media
+Camila-Sofia             4    50.0     7.7    50.0  media
+Camila-Tomas             6    20.0     7.7    23.4  baja
+Carlos-Daniel            2    33.3   123.2    33.4  media
+Carlos-Diana             4    33.3    24.2    47.6  media
+Carlos-Isabela           9    25.0     7.7    31.6  media
+Carlos-Julian            7     0.0    24.2    15.1  baja
+Carlos-Laura             2    25.0     0.0    31.6  media
+Carlos-Mateo            10     0.0   123.2    15.1  baja
+Carlos-Paula             3    25.0     7.7    31.6  media
+Carlos-Samuel            7     0.0     0.0    15.1  baja
+Carlos-Sofia             8     0.0     7.7    15.1  baja
+Carlos-Tomas            10    25.0     7.7    31.6  media
+Daniel-Diana             2     0.0   121.6    15.1  baja
+Daniel-Isabela          11    25.0   130.7    27.3  baja
+Daniel-Julian            5     0.0   121.6    15.1  baja
+Daniel-Laura             4    25.0   123.2    27.3  baja
+Daniel-Mateo             8    33.3     0.0    47.6  media
+Daniel-Paula             5     0.0   130.7    15.1  baja
+Daniel-Samuel            9    25.0   123.2    27.3  baja
+Daniel-Sofia            10     0.0   130.7    15.1  baja
+Daniel-Tomas            12    66.7   130.7    48.5  media
+Diana-Isabela           13     0.0    25.0    15.1  baja
+Diana-Julian             3    25.0     0.0    31.6  media
+Diana-Laura              6     0.0    24.2    15.1  baja
+Diana-Mateo              6     0.0   121.6    15.1  baja
+Diana-Paula              7    66.7    25.0    65.3  media
+Diana-Samuel            11     0.0    24.2    15.1  baja
+Diana-Sofia             12    25.0    25.0    36.1  media
+Diana-Tomas             14     0.0    25.0    15.1  baja
+Isabela-Julian          16    50.0    25.0    33.4  media
+Isabela-Laura            7    50.0     7.7    50.0  media
+Isabela-Mateo           19     0.0   130.7    15.1  baja
+Isabela-Paula            6     0.0     0.0    15.1  baja
+Isabela-Samuel           2     0.0     7.7    15.1  baja
+Isabela-Sofia            1    20.0     0.0    23.4  baja
+Isabela-Tomas            1    20.0     0.0    23.4  baja
+Julian-Laura             9    20.0    24.2    28.4  baja
+Julian-Mateo             3     0.0   121.6    15.1  baja
+Julian-Paula            10    20.0    25.0    28.4  baja
+Julian-Samuel           14     0.0    24.2    15.1  baja
+Julian-Sofia            15    50.0    25.0    35.0  media
+Julian-Tomas            17     0.0    25.0    15.1  baja
+Laura-Mateo             12    25.0   123.2    27.3  baja
+Laura-Paula              1    20.0     7.7    23.4  baja
+Laura-Samuel             5    20.0     0.0    23.4  baja
+Laura-Sofia              6     0.0     7.7    15.1  baja
+Laura-Tomas              8    50.0     7.7    50.0  media
+Mateo-Paula             13    25.0   130.7    27.3  baja
+Mateo-Samuel            17    66.7   123.2    38.1  media
+Mateo-Sofia             18     0.0   130.7    15.1  baja
+Mateo-Tomas             20    66.7   130.7    34.8  media
+Paula-Samuel             4    20.0     7.7    23.4  baja
+Paula-Sofia              5    20.0     0.0    23.4  baja
+Paula-Tomas              7    20.0     0.0    23.4  baja
+Samuel-Sofia             1    20.0     7.7    23.4  baja
+Samuel-Tomas             3    50.0     7.7    50.0  media
+Sofia-Tomas              2     0.0     0.0    15.1  baja
+
+======================================================================
+4. SISTEMA EXPERTO
+======================================================================
+Primeros disparos del motor (a igual salience y specificity gana el hecho mas reciente):
+   R03 Sofia-Tomas
+   R03 Samuel-Tomas
+   R03 Samuel-Sofia
+   R03 Paula-Tomas
+   R03 Paula-Sofia
+   R03 Paula-Samuel
+   R03 Mateo-Tomas
+   R03 Mateo-Sofia
+
+Orden de disparo para Andres-Sofia:
+   R03   R10   R07   R05   R04   R04   R06   R08   R11   R11   R11   R11   R11   R11   R11   R12   R16
+
+Orden de disparo para Mateo-Sofia:
+   R03   R01
+
+Recomendaciones:
+   Andrés - Camila        pedir_verificacion   Camila
+   Andrés - Carlos        descartar            compatibilidad baja
+   Andrés - Daniel        descartar            compatibilidad baja
+   Andrés - Diana         descartar            compatibilidad baja
+   Andrés - Isabela       descartar            compatibilidad baja
+   Andrés - Julián        sugerir_conversar    
+   Andrés - Laura         descartar            compatibilidad baja
+   Andrés - Mateo         descartar            objetivos incompatibles
+   Andrés - Paula         sugerir_conversar    
+   Andrés - Samuel        descartar            objetivos incompatibles
+   Andrés - Sofía         proponer_cita          lugar sugerido: Parque Explora
+   Andrés - Tomás         descartar            objetivos incompatibles
+   Camila - Carlos        descartar            compatibilidad baja
+   Camila - Daniel        descartar            compatibilidad baja
+   Camila - Diana         descartar            compatibilidad baja
+   Camila - Isabela       descartar            compatibilidad baja
+   Camila - Julián        descartar            compatibilidad baja
+   Camila - Laura         descartar            compatibilidad baja
+   Camila - Mateo         descartar            objetivos incompatibles
+   Camila - Paula         descartar            compatibilidad baja
+   Camila - Samuel        descartar            objetivos incompatibles
+   Camila - Sofía         sugerir_conversar    
+   Camila - Tomás         descartar            objetivos incompatibles
+   Carlos - Daniel        revisar_manual       
+   Carlos - Diana         sugerir_conversar    
+   Carlos - Isabela       sugerir_conversar    
+   Carlos - Julián        descartar            compatibilidad baja
+   Carlos - Laura         sugerir_conversar    
+   Carlos - Mateo         descartar            compatibilidad baja
+   Carlos - Paula         sugerir_conversar    
+   Carlos - Samuel        descartar            compatibilidad baja
+   Carlos - Sofía         descartar            compatibilidad baja
+   Carlos - Tomás         sugerir_conversar    
+   Daniel - Diana         descartar            compatibilidad baja
+   Daniel - Isabela       descartar            compatibilidad baja
+   Daniel - Julián        descartar            compatibilidad baja
+   Daniel - Laura         descartar            compatibilidad baja
+   Daniel - Mateo         descartar            objetivos incompatibles
+   Daniel - Paula         descartar            compatibilidad baja
+   Daniel - Samuel        descartar            objetivos incompatibles
+   Daniel - Sofía         descartar            compatibilidad baja
+   Daniel - Tomás         descartar            objetivos incompatibles
+   Diana - Isabela        descartar            compatibilidad baja
+   Diana - Julián         sugerir_conversar    
+   Diana - Laura          descartar            compatibilidad baja
+   Diana - Mateo          descartar            objetivos incompatibles
+   Diana - Paula          sugerir_conversar    
+   Diana - Samuel         descartar            objetivos incompatibles
+   Diana - Sofía          sugerir_conversar    
+   Diana - Tomás          descartar            objetivos incompatibles
+   Isabela - Julián       sugerir_conversar    
+   Isabela - Laura        sugerir_conversar    
+   Isabela - Mateo        descartar            compatibilidad baja
+   Isabela - Paula        descartar            compatibilidad baja
+   Isabela - Samuel       descartar            compatibilidad baja
+   Isabela - Sofía        descartar            compatibilidad baja
+   Isabela - Tomás        descartar            mala cita previa
+   Julián - Laura         descartar            compatibilidad baja
+   Julián - Mateo         descartar            objetivos incompatibles
+   Julián - Paula         descartar            compatibilidad baja
+   Julián - Samuel        descartar            objetivos incompatibles
+   Julián - Sofía         sugerir_conversar    
+   Julián - Tomás         descartar            objetivos incompatibles
+   Laura - Mateo          descartar            compatibilidad baja
+   Laura - Paula          descartar            compatibilidad baja
+   Laura - Samuel         descartar            compatibilidad baja
+   Laura - Sofía          descartar            compatibilidad baja
+   Laura - Tomás          sugerir_conversar    
+   Mateo - Paula          descartar            objetivos incompatibles
+   Mateo - Samuel         sugerir_conversar    
+   Mateo - Sofía          descartar            objetivos incompatibles
+   Mateo - Tomás          sugerir_conversar    
+   Paula - Samuel         descartar            objetivos incompatibles
+   Paula - Sofía          descartar            compatibilidad baja
+   Paula - Tomás          descartar            objetivos incompatibles
+   Samuel - Sofía         descartar            objetivos incompatibles
+   Samuel - Tomás         sugerir_conversar    
+   Sofía - Tomás          descartar            objetivos incompatibles
+
+Total de pares: 78  {'pedir_verificacion': 1, 'descartar': 57, 'sugerir_conversar': 18, 'proponer_cita': 1, 'revisar_manual': 1}

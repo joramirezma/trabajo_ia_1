@@ -1,0 +1,285 @@
+@prefix mt:   <http://ejemplo.org/emparejamiento#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# Clases
+#################################################################
+
+mt:Persona a rdfs:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label "Persona"@es .
+
+mt:Estudiante a rdfs:Class ;
+    rdfs:subClassOf mt:Persona ;
+    rdfs:label "Estudiante"@es .
+
+mt:Profesional a rdfs:Class ;
+    rdfs:subClassOf mt:Persona ;
+    rdfs:label "Profesional"@es .
+
+mt:Interes a rdfs:Class ;
+    rdfs:label "Interés o afición"@es .
+
+mt:Deporte a rdfs:Class ;
+    rdfs:subClassOf mt:Interes ;
+    rdfs:label "Deporte"@es .
+
+mt:Valor a rdfs:Class ;
+    rdfs:label "Valor personal"@es .
+
+mt:ObjetivoRelacion a rdfs:Class ;
+    rdfs:label "Objetivo de relación"@es .
+
+mt:Lugar a rdfs:Class ;
+    rdfs:label "Lugar"@es .
+
+mt:Ciudad a rdfs:Class ;
+    rdfs:subClassOf mt:Lugar ;
+    rdfs:label "Ciudad"@es .
+
+mt:LugarDeCita a rdfs:Class ;
+    rdfs:subClassOf mt:Lugar ;
+    rdfs:label "Lugar para una cita"@es .
+
+mt:Cita a rdfs:Class ;
+    rdfs:label "Cita realizada"@es .
+
+#################################################################
+# Propiedades
+#################################################################
+
+mt:tieneInteres a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Interes ;
+    rdfs:label "tiene interés"@es .
+
+mt:practicaDeporte a rdf:Property ;
+    rdfs:subPropertyOf mt:tieneInteres ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Deporte ;
+    rdfs:label "practica deporte"@es .
+
+mt:tieneValor a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Valor ;
+    rdfs:label "tiene valor"@es .
+
+mt:buscaObjetivo a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range mt:ObjetivoRelacion ;
+    rdfs:label "busca objetivo"@es .
+
+mt:esIncompatibleCon a rdf:Property ;
+    rdfs:domain mt:ObjetivoRelacion ; rdfs:range mt:ObjetivoRelacion ;
+    rdfs:label "es incompatible con"@es .
+
+mt:viveEn a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Ciudad ;
+    rdfs:label "vive en"@es .
+
+mt:esAmigoDe a rdf:Property ;
+    rdfs:subPropertyOf foaf:knows ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Persona ;
+    rdfs:label "es amigo de"@es .
+
+mt:participaEn a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range mt:Cita ;
+    rdfs:label "participa en"@es .
+
+mt:ocurrioEn a rdf:Property ;
+    rdfs:domain mt:Cita ; rdfs:range mt:LugarDeCita ;
+    rdfs:label "ocurrió en"@es .
+
+mt:ubicadoEn a rdf:Property ;
+    rdfs:domain mt:Lugar ; rdfs:range mt:Lugar ;
+    rdfs:label "ubicado en"@es .
+
+mt:edad a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range xsd:integer ;
+    rdfs:label "edad"@es .
+
+mt:calificacion a rdf:Property ;
+    rdfs:domain mt:Cita ; rdfs:range xsd:integer ;
+    rdfs:label "calificación de la cita (1 a 5)"@es .
+
+mt:latitud a rdf:Property ;
+    rdfs:domain mt:Ciudad ; rdfs:range xsd:decimal ;
+    rdfs:label "latitud"@es .
+
+mt:longitud a rdf:Property ;
+    rdfs:domain mt:Ciudad ; rdfs:range xsd:decimal ;
+    rdfs:label "longitud"@es .
+
+mt:perfilVerificado a rdf:Property ;
+    rdfs:domain mt:Persona ; rdfs:range xsd:boolean ;
+    rdfs:label "perfil verificado"@es .
+
+#################################################################
+# Intereses y deportes
+#################################################################
+
+mt:Cine a mt:Interes ; rdfs:label "Cine"@es .
+mt:Lectura a mt:Interes ; rdfs:label "Lectura"@es .
+mt:Musica a mt:Interes ; rdfs:label "Música"@es .
+mt:Viajar a mt:Interes ; rdfs:label "Viajar"@es .
+
+mt:Futbol a mt:Deporte ; rdfs:label "Fútbol"@es .
+mt:Running a mt:Deporte ; rdfs:label "Running"@es .
+mt:Ciclismo a mt:Deporte ; rdfs:label "Ciclismo"@es .
+mt:Natacion a mt:Deporte ; rdfs:label "Natación"@es .
+
+#################################################################
+# Valores y objetivos
+#################################################################
+
+mt:Honestidad a mt:Valor ; rdfs:label "Honestidad"@es .
+mt:Familia a mt:Valor ; rdfs:label "Familia"@es .
+mt:Aventura a mt:Valor ; rdfs:label "Aventura"@es .
+mt:Ambicion a mt:Valor ; rdfs:label "Ambición"@es .
+
+mt:Amistad a mt:ObjetivoRelacion ; rdfs:label "Amistad"@es .
+mt:RelacionCasual a mt:ObjetivoRelacion ; rdfs:label "Relación casual"@es .
+mt:RelacionSeria a mt:ObjetivoRelacion ; rdfs:label "Relación seria"@es .
+mt:Matrimonio a mt:ObjetivoRelacion ; rdfs:label "Matrimonio"@es .
+
+# RDFS no maneja propiedades simétricas, por eso van en los dos sentidos
+mt:RelacionSeria mt:esIncompatibleCon mt:RelacionCasual .
+mt:RelacionCasual mt:esIncompatibleCon mt:RelacionSeria .
+mt:Matrimonio mt:esIncompatibleCon mt:RelacionCasual .
+mt:RelacionCasual mt:esIncompatibleCon mt:Matrimonio .
+
+#################################################################
+# Lugares
+#################################################################
+
+mt:Antioquia a mt:Lugar ; rdfs:label "Antioquia"@es .
+mt:AreaMetropolitana a mt:Lugar ; rdfs:label "Área Metropolitana"@es ;
+    mt:ubicadoEn mt:Antioquia .
+mt:OrienteAntioqueno a mt:Lugar ; rdfs:label "Oriente Antioqueño"@es ;
+    mt:ubicadoEn mt:Antioquia .
+mt:EjeCafetero a mt:Lugar ; rdfs:label "Eje Cafetero"@es .
+
+mt:Medellin a mt:Ciudad ; rdfs:label "Medellín"@es ;
+    mt:latitud 6.2442 ; mt:longitud -75.5812 ;
+    mt:ubicadoEn mt:AreaMetropolitana .
+mt:Envigado a mt:Ciudad ; rdfs:label "Envigado"@es ;
+    mt:latitud 6.1759 ; mt:longitud -75.5917 ;
+    mt:ubicadoEn mt:AreaMetropolitana .
+mt:Rionegro a mt:Ciudad ; rdfs:label "Rionegro"@es ;
+    mt:latitud 6.1550 ; mt:longitud -75.3737 ;
+    mt:ubicadoEn mt:OrienteAntioqueno .
+mt:Manizales a mt:Ciudad ; rdfs:label "Manizales"@es ;
+    mt:latitud 5.0703 ; mt:longitud -75.5138 ;
+    mt:ubicadoEn mt:EjeCafetero .
+
+mt:JardinBotanico a mt:LugarDeCita ; rdfs:label "Jardín Botánico"@es ;
+    mt:ubicadoEn mt:Medellin .
+mt:ParqueExplora a mt:LugarDeCita ; rdfs:label "Parque Explora"@es ;
+    mt:ubicadoEn mt:Medellin .
+mt:ParqueLleras a mt:LugarDeCita ; rdfs:label "Parque Lleras"@es ;
+    mt:ubicadoEn mt:Medellin .
+mt:CafeCentral a mt:LugarDeCita ; rdfs:label "Café Central"@es ;
+    mt:ubicadoEn mt:Envigado .
+
+#################################################################
+# Citas pasadas
+#################################################################
+
+mt:cita1 a mt:Cita ; rdfs:label "Cita 1"@es ;
+    mt:ocurrioEn mt:ParqueLleras ; mt:calificacion 2 .
+mt:cita2 a mt:Cita ; rdfs:label "Cita 2"@es ;
+    mt:ocurrioEn mt:CafeCentral ; mt:calificacion 4 .
+mt:cita3 a mt:Cita ; rdfs:label "Cita 3"@es ;
+    mt:ocurrioEn mt:JardinBotanico ; mt:calificacion 5 .
+mt:cita4 a mt:Cita ; rdfs:label "Cita 4"@es ;
+    mt:ocurrioEn mt:ParqueExplora ; mt:calificacion 3 .
+
+#################################################################
+# Personas
+#################################################################
+
+# --- Personas sin subtipo ---
+mt:Laura a mt:Persona ;
+    foaf:name "Laura" ; mt:edad 29 ; mt:viveEn mt:Envigado ;
+    mt:tieneInteres mt:Viajar, mt:Musica ; mt:practicaDeporte mt:Natacion ;
+    mt:tieneValor mt:Aventura ; mt:buscaObjetivo mt:Amistad ;
+    mt:esAmigoDe mt:Sofia, mt:Andres ;
+    mt:participaEn mt:cita2 ; mt:perfilVerificado true .
+
+mt:Carlos a mt:Persona ;
+    foaf:name "Carlos" ; mt:edad 31 ; mt:viveEn mt:Envigado ;
+    mt:tieneInteres mt:Viajar ; mt:practicaDeporte mt:Ciclismo ;
+    mt:tieneValor mt:Aventura, mt:Ambicion ; mt:buscaObjetivo mt:Amistad ;
+    mt:esAmigoDe mt:Julian ;
+    mt:participaEn mt:cita2 ; mt:perfilVerificado true .
+
+mt:Diana a mt:Persona ;
+    foaf:name "Diana" ; mt:edad 35 ; mt:viveEn mt:Rionegro ;
+    mt:tieneInteres mt:Lectura ; mt:practicaDeporte mt:Ciclismo ;
+    mt:tieneValor mt:Familia ; mt:buscaObjetivo mt:Matrimonio ;
+    mt:esAmigoDe mt:Julian ;
+    mt:participaEn mt:cita3 ; mt:perfilVerificado true .
+
+mt:Julian a mt:Persona ;
+    foaf:name "Julián" ; mt:edad 38 ; mt:viveEn mt:Rionegro ;
+    mt:tieneInteres mt:Lectura, mt:Cine ; mt:practicaDeporte mt:Natacion ;
+    mt:tieneValor mt:Familia ; mt:buscaObjetivo mt:Matrimonio ;
+    mt:esAmigoDe mt:Carlos, mt:Diana ;
+    mt:participaEn mt:cita3 ; mt:perfilVerificado false .
+
+# --- Estudiantes ---
+mt:Sofia a mt:Estudiante ;
+    foaf:name "Sofía" ; mt:edad 23 ; mt:viveEn mt:Medellin ;
+    mt:tieneInteres mt:Cine, mt:Lectura ; mt:practicaDeporte mt:Running ;
+    mt:tieneValor mt:Honestidad ; mt:buscaObjetivo mt:RelacionSeria ;
+    mt:esAmigoDe mt:Laura ;
+    mt:perfilVerificado true .
+
+mt:Tomas a mt:Estudiante ;
+    foaf:name "Tomás" ; mt:edad 21 ; mt:viveEn mt:Medellin ;
+    mt:tieneInteres mt:Musica, mt:Viajar ; mt:practicaDeporte mt:Futbol ;
+    mt:tieneValor mt:Aventura ; mt:buscaObjetivo mt:RelacionCasual ;
+    mt:participaEn mt:cita1 ; mt:perfilVerificado true .
+
+mt:Isabela a mt:Estudiante ;
+    foaf:name "Isabela" ; mt:edad 22 ; mt:viveEn mt:Medellin ;
+    mt:tieneInteres mt:Cine, mt:Viajar ; mt:practicaDeporte mt:Natacion ;
+    mt:tieneValor mt:Honestidad ; mt:buscaObjetivo mt:Amistad ;
+    mt:participaEn mt:cita1 ; mt:perfilVerificado true .
+
+mt:Samuel a mt:Estudiante ;
+    foaf:name "Samuel" ; mt:edad 24 ; mt:viveEn mt:Envigado ;
+    mt:tieneInteres mt:Musica ; mt:practicaDeporte mt:Futbol, mt:Running ;
+    mt:tieneValor mt:Ambicion ; mt:buscaObjetivo mt:RelacionCasual ;
+    mt:participaEn mt:cita4 ; mt:perfilVerificado true .
+
+# --- Profesionales ---
+mt:Andres a mt:Profesional ;
+    foaf:name "Andrés" ; mt:edad 26 ; mt:viveEn mt:Medellin ;
+    mt:tieneInteres mt:Cine, mt:Lectura, mt:Musica ; mt:practicaDeporte mt:Running ;
+    mt:tieneValor mt:Honestidad ; mt:buscaObjetivo mt:RelacionSeria ;
+    mt:esAmigoDe mt:Laura ;
+    mt:perfilVerificado true .
+
+mt:Mateo a mt:Profesional ;
+    foaf:name "Mateo" ; mt:edad 41 ; mt:viveEn mt:Manizales ;
+    mt:tieneInteres mt:Musica ; mt:practicaDeporte mt:Futbol ;
+    mt:tieneValor mt:Ambicion ; mt:buscaObjetivo mt:RelacionCasual ;
+    mt:perfilVerificado true .
+
+mt:Paula a mt:Profesional ;
+    foaf:name "Paula" ; mt:edad 28 ; mt:viveEn mt:Medellin ;
+    mt:tieneInteres mt:Lectura, mt:Musica ; mt:practicaDeporte mt:Ciclismo ;
+    mt:tieneValor mt:Familia ; mt:buscaObjetivo mt:RelacionSeria ;
+    mt:perfilVerificado true .
+
+mt:Daniel a mt:Profesional ;
+    foaf:name "Daniel" ; mt:edad 33 ; mt:viveEn mt:Manizales ;
+    mt:tieneInteres mt:Viajar ; mt:practicaDeporte mt:Futbol ;
+    mt:tieneValor mt:Honestidad ; mt:buscaObjetivo mt:Matrimonio ;
+    mt:participaEn mt:cita4 ; mt:perfilVerificado true .
+
+# --- Sin rdf:type a propósito: el razonador debe deducir que es Persona ---
+mt:Camila foaf:name "Camila" ; mt:edad 27 ; mt:viveEn mt:Envigado ;
+    mt:tieneInteres mt:Cine, mt:Musica ; mt:practicaDeporte mt:Running ;
+    mt:tieneValor mt:Honestidad ; mt:buscaObjetivo mt:RelacionSeria ;
+    mt:perfilVerificado false .
