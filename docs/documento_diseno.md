@@ -216,14 +216,19 @@ Ejemplo: Sofía–Andrés, con edad 3, afinidad 75 % y 0 km, da un score de **81
 
 El traductor genera **415 hechos iniciales** desde el grafo razonado: 78 `Individuo` (34 inferidos), 132 `Relacion` (22 inferidas), 109 `Propiedad` y 96 `Esquema` (28 de ellos son las declaraciones de las 11 clases y 17 propiedades). A ellos se suman **78 `AfinidadDifusa`**, uno por cada par de las 13 personas.
 
-### 5.3 Reglas (23)
+### 5.3 Reglas (29)
 
 | ID | Salience | Condición | Efecto |
 |---|---|---|---|
 | R01 | 100 | A y B buscan objetivos O1, O2 con `O1 esIncompatibleCon O2` | descartar "objetivos incompatibles" + Evaluado |
 | R02 | 100 | A y B participaron en la misma cita con calificación ≤ 2 | descartar "mala cita previa" + Evaluado |
 | R03 | 100 | AfinidadDifusa + ambos `Individuo(tipo=Persona)` y `Individuo(tipo=foaf:Person)` (tipos inferidos) | Puntaje(a, b, 0) |
+| R21 | 100 | alguno de los dos tiene `edad` < 18 | descartar "menor de edad" + Evaluado |
 | R18 | 100 | Relacion cuyo objeto no es del tipo del `range` (Esquema) | aviso de inconsistencia |
+| R22 | 100 | Relacion o Propiedad con `domain` C (Esquema) y el sujeto es C | cuenta el hecho como válido |
+| R22b | 100 | Relacion o Propiedad con `domain` C y el sujeto **no** es C | aviso de inconsistencia |
+| R23 | 100 | Relacion con P, `P subPropertyOf Q` (P ≠ Q), P declarada `rdf:Property` y existe la misma relación con Q | cuenta el hecho como válido |
+| R23b | 100 | igual que R23 pero **falta** la relación con Q | aviso de inconsistencia |
 | R10 | 60 | mismo `practicaDeporte` D, D es Deporte y (por inferencia) Interes | Coincidencia deporte |
 | R04 | 50 | mismo `tieneInteres` X (incluye inferidos), X es Interes y no es deporte ya contado | Coincidencia interes |
 | R05 | 50 | mismo `tieneValor` V y V es Valor | Coincidencia valor |
@@ -243,6 +248,7 @@ El traductor genera **415 hechos iniciales** desde el grafo razonado: 78 `Indivi
 | R17 | −10 | Puntaje y aún no Evaluado | revisar_manual + Evaluado |
 | R19 | −20 | Recomendacion + `foaf:name` de ambos | informe con nombres |
 | R20 | −20 | Recomendacion sugerir_lugar + `rdfs:label` del lugar | informe con nombre del lugar |
+| R24 | −20 | cualquier `rdfs:label` | glosario de clases, propiedades e individuos |
 
 Los resultados de la lógica difusa entran como precondición (`nivel`) en R12, R13, R14 y R15.
 
@@ -275,6 +281,16 @@ Los `factid` son los identificadores de los hechos que activaron la regla, orden
 - **Lock-fact `Evaluado`:** toda regla de decisión exige `NOT(Evaluado(a, b))` y declara `Evaluado` al disparar. Así un par recibe una sola decisión final.
 - `NOT(Puntaje)` en R03 y `NOT(Recomendacion(sugerir_lugar))` en R16 evitan crear el puntaje o sugerir un lugar dos veces.
 
+### 5.5 Control de consistencia con el esquema
+
+R18, R22/R22b y R23/R23b comprueban el grafo contra `range`, `domain` y `subPropertyOf`. Las versiones positivas (R22, R23) cuentan los hechos que cumplen el esquema, y `main.py` imprime el resumen: con los 13 perfiles, **162 hechos cumplen el dominio, 22 cumplen la subpropiedad y el glosario (R24) tiene 58 términos**.
+
+Con el grafo razonado las versiones de aviso no se disparan, porque el razonador ya dedujo lo que ellas buscan (rdfs2, rdfs3 y rdfs7). Para comprobar que funcionan, se alimentó el motor con el grafo **sin razonar**: R22b dio 85 avisos (por ejemplo, "Tomas usa viveEn y no es Persona"), R23b dio 22 ("Tomas practicaDeporte Futbol sin tieneInteres") y R18 dio 6 ("Medellin no es Lugar"). Esto muestra, desde el sistema experto, qué aporta el razonamiento.
+
+El razonador agrega `P subPropertyOf P` para toda propiedad; R23 lo excluye con un `TEST`.
+
+R21 tampoco se dispara con los datos actuales (la menor edad es 21 años). Si en la prueba se cambia la edad de Valentina a 16, sus 13 pares quedan en "descartar – menor de edad".
+
 ## 6. Integración
 
 ### 6.1 Ontología → Sistema experto (traductor)
@@ -299,14 +315,21 @@ Uso de los hechos traducidos en las reglas:
 | Deporte, practicaDeporte | R10, R04 (vía inferencia), afinidad |
 | Valor, tieneValor | R05 |
 | ObjetivoRelacion, buscaObjetivo, esIncompatibleCon | R01, R06 |
-| Ciudad, viveEn, latitud, longitud | R07, R07b, R07c, R16, distancia difusa |
+| Ciudad, viveEn | R07, R07b, R07c, R16, distancia difusa |
+| latitud, longitud | R22 (dominio Ciudad), distancia difusa |
 | Lugar (regiones), ubicadoEn | R07b, R07c, R16 |
 | LugarDeCita, Cita, ocurrioEn, calificacion, participaEn | R02, R16a, R16 |
-| esAmigoDe / foaf:knows | R08 |
-| edad | diferencia de edad difusa |
+| esAmigoDe | R22, R23 (esAmigoDe ⊑ foaf:knows) |
+| foaf:knows | R08, R23 |
+| edad | R21, R22, diferencia de edad difusa |
 | perfilVerificado | R12, R14 |
 | Esquema range | R18 |
-| foaf:name, rdfs:label | R19, R20 |
+| Esquema domain | R22, R22b |
+| Esquema subPropertyOf y declaración rdf:Property | R23, R23b |
+| foaf:name | R19 |
+| rdfs:label (clases, propiedades e individuos) | R24, R20 |
+
+Todas las `Relacion` y `Propiedad` cuya propiedad tiene dominio pasan por R22 (162 hechos), y todas las relaciones de una subpropiedad pasan por R23 (22 hechos). Así ningún tipo de hecho traducido queda sin una regla que lo use.
 
 ### 6.2 Lógica difusa → Sistema experto
 

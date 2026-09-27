@@ -29,12 +29,16 @@ class MotorEmparejamiento(ReglasEmparejamiento, KnowledgeEngine):
         self.verbose = verbose
         self.disparos = []
         self.informe = {}
+        self.validaciones = {}
+        self.glosario = {}
 
     def cargar(self, facts):
         """Reinicia el motor y declara los hechos iniciales en el orden recibido."""
         self.reset()
         self.disparos = []
         self.informe = {}
+        self.validaciones = {}
+        self.glosario = {}
         for f in facts:
             self.declare(f)
 

@@ -91,6 +91,12 @@ def ejecutar(ruta_ttl=RUTA_TTL, pares_traza=(("Andres", "Sofia"), ("Mateo", "Sof
         conteo[r["accion"]] = conteo.get(r["accion"], 0) + 1
 
     print(f"\nTotal de pares: {sum(conteo.values())}  {conteo}")
+
+    # las inconsistencias (R18, R22b, R23b) se imprimen durante motor.run()
+    print("\nControl de consistencia con el esquema (R22, R23, R24):")
+    for tipo, n in sorted(motor.validaciones.items()):
+        print(f"   {tipo:<14} {n:>4} hechos cumplen el esquema")
+    print(f"   {'rdfs:label':<14} {len(motor.glosario):>4} terminos en el glosario")
     return motor
 
 

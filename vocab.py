@@ -8,6 +8,7 @@ El traductor NO importa este archivo, para que no dependa del dominio.
 MT = "http://ejemplo.org/emparejamiento#"
 FOAF = "http://xmlns.com/foaf/0.1/"
 RDFS = "http://www.w3.org/2000/01/rdf-schema#"
+RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
 # Clases
 MT_PERSONA = MT + "Persona"
@@ -44,6 +45,7 @@ FOAF_NAME = FOAF + "name"
 FOAF_KNOWS = FOAF + "knows"
 RDFS_LABEL = RDFS + "label"
 RDFS_CLASS = RDFS + "Class"
+RDF_PROPERTY = RDF + "Property"
 
 # Relaciones de esquema (campo 'relacion' del Fact Esquema)
 SUBCLASE = "subClassOf"

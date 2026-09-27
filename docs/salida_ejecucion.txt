@@ -18,13 +18,13 @@ Caso 1 - jerarquia de clases (subClassOf):
    ... total 24
 
 Caso 2 - pertenencia desde el dominio de una propiedad:
-   mt:Camila a mt:Persona   (por el dominio de mt:tieneValor)
-   mt:Camila a mt:Persona   (por el dominio de mt:viveEn)
    mt:Camila a mt:Persona   (por el dominio de mt:edad)
-   mt:Camila a mt:Persona   (por el dominio de mt:perfilVerificado)
-   mt:Camila a mt:Persona   (por el dominio de mt:buscaObjetivo)
    mt:Camila a mt:Persona   (por el dominio de mt:tieneInteres)
+   mt:Camila a mt:Persona   (por el dominio de mt:buscaObjetivo)
+   mt:Camila a mt:Persona   (por el dominio de mt:tieneValor)
+   mt:Camila a mt:Persona   (por el dominio de mt:perfilVerificado)
    mt:Camila a mt:Persona   (por el dominio de mt:practicaDeporte)
+   mt:Camila a mt:Persona   (por el dominio de mt:viveEn)
 
 Caso 3 - jerarquia de propiedades (subPropertyOf):
    mt:Andres mt:tieneInteres mt:Running   (desde mt:practicaDeporte)
@@ -266,3 +266,8 @@ Recomendaciones:
    Sofía - Tomás          descartar            objetivos incompatibles
 
 Total de pares: 78  {'pedir_verificacion': 1, 'descartar': 57, 'sugerir_conversar': 18, 'proponer_cita': 1, 'revisar_manual': 1}
+
+Control de consistencia con el esquema (R22, R23, R24):
+   domain          162 hechos cumplen el esquema
+   subPropertyOf    22 hechos cumplen el esquema
+   rdfs:label       58 terminos en el glosario

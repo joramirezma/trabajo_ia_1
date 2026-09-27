@@ -15,9 +15,15 @@ que impide que un par reciba dos decisiones finales.
 import vocab as V
 from experto.hechos import (Individuo, Relacion, Propiedad, Esquema, AfinidadDifusa,
                             Coincidencia, Puntaje, Recomendacion, Evaluado, LugarDescartado)
-from experta import Rule, NOT, TEST, MATCH, P, AS
+from experta import Rule, NOT, OR, TEST, MATCH, P, AS
 
 ALTA, DEPORTE, MEDIA, BAJA, DEFECTO, INFORME = 100, 60, 50, 10, -10, -20
+
+
+def es_numero(v):
+    """Experta puede evaluar el P(...) de 'valor' antes de filtrar por predicado,
+    asi que tambien le llegan textos (foaf:name, rdfs:label); se ignoran."""
+    return isinstance(v, (int, float))
 
 
 class ReglasEmparejamiento:
@@ -34,6 +40,10 @@ class ReglasEmparejamiento:
         self._log(regla, a, b, f"-> {accion} {motivo}")
         self.declare(Recomendacion(a=a, b=b, accion=accion, motivo=motivo))
         self.declare(Evaluado(a=a, b=b))
+
+    def _validado(self, tipo):
+        """Cuenta un hecho que cumple el esquema (domain o subPropertyOf)."""
+        self.validaciones[tipo] = self.validaciones.get(tipo, 0) + 1
 
     # ------------------------------------------------------------------
     # Prioridad ALTA: descartes
@@ -52,12 +62,21 @@ class ReglasEmparejamiento:
     @Rule(AfinidadDifusa(a=MATCH.a, b=MATCH.b),
           Relacion(sujeto=MATCH.a, predicado=V.MT_PARTICIPA_EN, objeto=MATCH.c),
           Relacion(sujeto=MATCH.b, predicado=V.MT_PARTICIPA_EN, objeto=MATCH.c),
-          Propiedad(sujeto=MATCH.c, predicado=V.MT_CALIFICACION, valor=P(lambda v: v <= 2)),
+          Propiedad(sujeto=MATCH.c, predicado=V.MT_CALIFICACION, valor=P(lambda v: es_numero(v) and v <= 2)),
           NOT(Evaluado(a=MATCH.a, b=MATCH.b)),
           salience=ALTA)
     def r02_mala_cita_previa(self, a, b, c):
         """Descarta si ya tuvieron una cita juntos con calificacion <= 2."""
         self._decidir("R02", a, b, "descartar", "mala cita previa")
+
+    @Rule(AfinidadDifusa(a=MATCH.a, b=MATCH.b),
+          Propiedad(sujeto=MATCH.x, predicado=V.MT_EDAD, valor=P(lambda v: es_numero(v) and v < 18)),
+          TEST(lambda x, a, b: x in (a, b)),
+          NOT(Evaluado(a=MATCH.a, b=MATCH.b)),
+          salience=ALTA)
+    def r21_menor_de_edad(self, a, b, x):
+        """Descarta el par si alguno de los dos es menor de edad (edad < 18)."""
+        self._decidir("R21", a, b, "descartar", "menor de edad")
 
     @Rule(AfinidadDifusa(a=MATCH.a, b=MATCH.b),
           Individuo(uri=MATCH.a, tipo=V.MT_PERSONA),
@@ -235,7 +254,7 @@ class ReglasEmparejamiento:
 
     @Rule(Relacion(sujeto=MATCH.c, predicado=V.MT_OCURRIO_EN, objeto=MATCH.l),
           Individuo(uri=MATCH.c, tipo=V.MT_CITA),
-          Propiedad(sujeto=MATCH.c, predicado=V.MT_CALIFICACION, valor=P(lambda v: v <= 2)),
+          Propiedad(sujeto=MATCH.c, predicado=V.MT_CALIFICACION, valor=P(lambda v: es_numero(v) and v <= 2)),
           salience=MEDIA)
     def r16a_marcar_lugar(self, c, l):
         """Marca los lugares donde hubo una cita con calificacion <= 2."""
@@ -275,6 +294,51 @@ class ReglasEmparejamiento:
         Con el grafo razonado no deberia dispararse nunca."""
         print(f"[R18] Inconsistencia: {V.nombre_corto(o)} no es {V.nombre_corto(c)}")
 
+    @Rule(OR(Relacion(sujeto=MATCH.s, predicado=MATCH.p),
+             Propiedad(sujeto=MATCH.s, predicado=MATCH.p)),
+          Esquema(sujeto=MATCH.p, relacion=V.DOMINIO, objeto=MATCH.c),
+          Individuo(uri=MATCH.s, tipo=MATCH.c),
+          salience=ALTA)
+    def r22_dominio_valido(self, s, p, c):
+        """Cuenta los hechos cuyo sujeto es del tipo que pide el dominio de la propiedad.
+        Asi pasan por una regla edad, latitud, longitud y esAmigoDe, que las demas no leen."""
+        self._validado("domain")
+
+    @Rule(OR(Relacion(sujeto=MATCH.s, predicado=MATCH.p),
+             Propiedad(sujeto=MATCH.s, predicado=MATCH.p)),
+          Esquema(sujeto=MATCH.p, relacion=V.DOMINIO, objeto=MATCH.c),
+          NOT(Individuo(uri=MATCH.s, tipo=MATCH.c)),
+          salience=ALTA)
+    def r22b_validar_dominio(self, s, p, c):
+        """Avisa si el sujeto no es del tipo del dominio.
+        Con el grafo razonado no deberia dispararse (rdfs2 ya le asigna el tipo)."""
+        print(f"[R22b] Inconsistencia: {V.nombre_corto(s)} usa {V.nombre_corto(p)} "
+              f"y no es {V.nombre_corto(c)}")
+
+    @Rule(Relacion(sujeto=MATCH.s, predicado=MATCH.p, objeto=MATCH.o),
+          Esquema(sujeto=MATCH.p, relacion=V.SUBPROPIEDAD, objeto=MATCH.q),
+          TEST(lambda p, q: p != q),
+          Esquema(sujeto=MATCH.p, relacion=V.TIPO, objeto=V.RDF_PROPERTY),
+          Relacion(sujeto=MATCH.s, predicado=MATCH.q, objeto=MATCH.o),
+          salience=ALTA)
+    def r23_subpropiedad_valida(self, s, p, o, q):
+        """Cuenta las relaciones de una subpropiedad (esAmigoDe, practicaDeporte) que
+        tambien aparecen con su superpropiedad (foaf:knows, tieneInteres).
+        El razonador agrega 'p subPropertyOf p' para toda propiedad; el TEST lo excluye."""
+        self._validado("subPropertyOf")
+
+    @Rule(Relacion(sujeto=MATCH.s, predicado=MATCH.p, objeto=MATCH.o),
+          Esquema(sujeto=MATCH.p, relacion=V.SUBPROPIEDAD, objeto=MATCH.q),
+          TEST(lambda p, q: p != q),
+          Esquema(sujeto=MATCH.p, relacion=V.TIPO, objeto=V.RDF_PROPERTY),
+          NOT(Relacion(sujeto=MATCH.s, predicado=MATCH.q, objeto=MATCH.o)),
+          salience=ALTA)
+    def r23b_validar_subpropiedad(self, s, p, o, q):
+        """Avisa si falta la relacion con la superpropiedad.
+        Con el grafo razonado no deberia dispararse (rdfs7 ya la agrega)."""
+        print(f"[R23b] Inconsistencia: {V.nombre_corto(s)} {V.nombre_corto(p)} "
+              f"{V.nombre_corto(o)} sin {V.nombre_corto(q)}")
+
     @Rule(Recomendacion(a=MATCH.a, b=MATCH.b, accion=MATCH.acc, motivo=MATCH.m),
           TEST(lambda acc: acc != "sugerir_lugar"),
           Propiedad(sujeto=MATCH.a, predicado=V.FOAF_NAME, valor=MATCH.na),
@@ -292,3 +356,9 @@ class ReglasEmparejamiento:
     def r20_informe_lugar(self, a, b, l, etiqueta):
         """Agrega al informe el lugar sugerido usando su rdfs:label."""
         self.informe.setdefault((a, b), {})["lugar"] = str(etiqueta)
+
+    @Rule(Propiedad(sujeto=MATCH.x, predicado=V.RDFS_LABEL, valor=MATCH.etiqueta),
+          salience=INFORME)
+    def r24_glosario(self, x, etiqueta):
+        """Arma el glosario con el rdfs:label de clases, propiedades e individuos."""
+        self.glosario[x] = str(etiqueta)
